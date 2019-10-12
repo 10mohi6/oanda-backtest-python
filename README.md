@@ -80,7 +80,7 @@ average return           0.17
 loss cut rate            0.53
 profit taking rate       0.53
 ```
-[![backtest.png](https://github.com/10mohi6/oanda-backtest-python/blob/master/tests/backtest.png)](https://github.com/10mohi6/oanda-backtest-python/blob/master/tests/backtest.png)
+![backtest.svg](https://github.com/10mohi6/oanda-backtest-python/blob/master/tests/backtest.svg)
 
 
 ## Getting started

@@ -6,7 +6,7 @@
 [![Build Status](https://travis-ci.com/10mohi6/oanda-backtest-python.svg?branch=master)](https://travis-ci.com/10mohi6/oanda-backtest-python)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/oanda-backtest)](https://pypi.org/project/oanda-backtest/)
 
-oanda-backtest is a python library for backtest with oanda rest api on Python 3.5 and above.
+oanda-backtest is a python library for backtest with oanda rest api on Python 3.6 and above.
 
 
 ## Installation
@@ -80,7 +80,7 @@ average return           0.17
 loss cut rate            0.53
 profit taking rate       0.53
 ```
-![backtest.png](https://github.com/10mohi6/oanda-backtest-python/blob/master/tests/backtest.png)
+[![backtest.png](https://github.com/10mohi6/oanda-backtest-python/blob/master/tests/backtest.png)](https://github.com/10mohi6/oanda-backtest-python/blob/master/tests/backtest.png)
 
 
 ## Getting started

@@ -5,8 +5,8 @@ with open('README.md') as f:
 
 setup(
     name  = 'oanda-backtest',
-    version = '0.1.0',
-    description = 'oanda-backtest is a python library for backtest with oanda rest api on Python 3.5 and above.',
+    version = '0.1.1',
+    description = 'oanda-backtest is a python library for backtest with oanda rest api on Python 3.6 and above.',
     long_description = long_description,
     long_description_content_type="text/markdown",
     license = 'MIT',
@@ -16,12 +16,11 @@ setup(
     keywords = 'oanda backtest api python',
     packages = find_packages(),
     install_requires = ['requests','numpy','pandas','matplotlib'],
-    python_requires=">=3.5.0",
+    python_requires=">=3.6.0",
     classifiers = [
         'Development Status :: 4 - Beta',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Intended Audience :: Developers',

@@ -1,13 +1,10 @@
 from setuptools import setup, find_packages
 
-with open('README.md') as f:
-   long_description = f.read()
-
 setup(
     name  = 'oanda-backtest',
-    version = '0.1.1',
+    version = '0.1.6',
     description = 'oanda-backtest is a python library for backtest with oanda rest api on Python 3.6 and above.',
-    long_description = long_description,
+    long_description = open('README.md').read(),
     long_description_content_type="text/markdown",
     license = 'MIT',
     author = '10mohi6',

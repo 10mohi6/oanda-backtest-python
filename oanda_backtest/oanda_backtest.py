@@ -2,6 +2,7 @@ import requests
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 class Backtest(object):
 
@@ -15,8 +16,8 @@ class Backtest(object):
         self._expiration = 10
         self._point = 0.0001 # 1pips
         self._lots = 10000 # currency unit
-        self._profit_taking = 0
-        self._loss_cut = 0
+        self._take_profit = 0
+        self._stop_loss = 0
         self._spread = 0
         self._initial_deposit = 0
 
@@ -32,7 +33,10 @@ class Backtest(object):
             data.append([pd.to_datetime(r['time']), float(r['mid']['o']), float(r['mid']['h']), float(r['mid']['l']), float(r['mid']['c']), float(r['volume'])])
         self.df = pd.DataFrame(data, columns=['T', 'O', 'H', 'L', 'C', 'V']).set_index('T')
         return self.df
-    
+
+    def exists(self, filepath):
+        return os.path.exists(filepath)
+
     def to_csv(self, filepath):
         return self.df.to_csv(filepath)
 
@@ -132,20 +136,20 @@ class Backtest(object):
         self._lots = lots
 
     @property
-    def profit_taking(self):
-        return self._profit_taking
+    def take_profit(self):
+        return self._take_profit
 
-    @profit_taking.setter
-    def profit_taking(self, profit_taking):
-        self._profit_taking = profit_taking
+    @take_profit.setter
+    def take_profit(self, take_profit):
+        self._take_profit = take_profit
 
     @property
-    def loss_cut(self):
-        return self._loss_cut
+    def stop_loss(self):
+        return self._stop_loss
 
-    @loss_cut.setter
-    def loss_cut(self, loss_cut):
-        self._loss_cut = loss_cut
+    @stop_loss.setter
+    def stop_loss(self, stop_loss):
+        self._stop_loss = stop_loss
 
     @property
     def spread(self):
@@ -218,7 +222,7 @@ class Backtest(object):
             short_trade[sell_entry_s] = o[sell_entry_s]
         else:
             # limit sell
-            for i in range(N-self._expiration):
+            for i in range(N - self._expiration):
                 if sell_entry_s[i]:
                     sell_limit = o[i] + self._limit * self._point
                     for j in range(self._expiration):
@@ -235,7 +239,7 @@ class Backtest(object):
         buy_price = sell_price = 0
         long_rr = [] # long return rate
         short_rr = [] # short return rate
-        loss_cut = profit_taking = 0
+        stop_loss = take_profit = 0
 
         for i in range(1,N):
             # buy entry
@@ -268,48 +272,45 @@ class Backtest(object):
                     sell_price = 0
                 else: short_trade[i] = 0
 
-            # close buy position with loss cut
-            if buy_price != 0 and self._loss_cut > 0: 
-                stop_price = buy_price-self._loss_cut*self._point
+            # close buy position with stop loss
+            if buy_price != 0 and self._stop_loss > 0: 
+                stop_price = buy_price-self._stop_loss*self._point
                 if l[i] <= stop_price:
                     long_trade[i] = -stop_price
                     long_pl[i] = -(buy_price+long_trade[i])*self._lots # profit/loss fixed
                     long_rr.append(round(long_pl[i] / buy_price * 100, 2)) # long return rate
                     buy_price = 0
-                    loss_cut += 1
+                    stop_loss += 1
 
-            # close buy positon with profit taking
-            if buy_price != 0 and self._profit_taking > 0:
-                limit_price = buy_price+self._profit_taking*self._point
+            # close buy positon with take profit
+            if buy_price != 0 and self._take_profit > 0:
+                limit_price = buy_price+self._take_profit*self._point
                 if h[i] >= limit_price:
                     long_trade[i] = -limit_price
                     long_pl[i] = -(buy_price+long_trade[i])*self._lots # profit/loss fixed
                     long_rr.append(round(long_pl[i] / buy_price * 100, 2)) # long return rate
                     buy_price = 0
-                    profit_taking += 1
+                    take_profit += 1
 
-            # close sell position with loss cut
-            if sell_price != 0 and self._loss_cut > 0:
-                stop_price = sell_price+self._loss_cut*self._point
+            # close sell position with stop loss
+            if sell_price != 0 and self._stop_loss > 0:
+                stop_price = sell_price+self._stop_loss*self._point
                 if h[i]+self._spread >= stop_price:
                     short_trade[i] = -stop_price
                     short_pl[i] = (sell_price+short_trade[i])*self._lots # profit/loss fixed
                     short_rr.append(round(short_pl[i] / sell_price * 100, 2)) # short return rate
                     sell_price = 0
-                    loss_cut += 1
+                    stop_loss += 1
 
-            # close sell position with profit taking
-            if sell_price != 0 and self._profit_taking > 0:
-                limit_price = sell_price-self._profit_taking*self._point
+            # close sell position with take profit
+            if sell_price != 0 and self._take_profit > 0:
+                limit_price = sell_price-self._take_profit*self._point
                 if l[i]+self._spread <= limit_price:
                     short_trade[i] = -limit_price
                     short_pl[i] = (sell_price+short_trade[i])*self._lots # profit/loss fixed
                     short_rr.append(round(short_pl[i] / sell_price * 100, 2)) # short return rate
                     sell_price = 0
-                    profit_taking += 1
-
-        # self.long_line = self._position_line(long_trade)
-        # self.short_line =self._position_line(short_trade)
+                    take_profit += 1
 
         win_trades = np.count_nonzero(long_pl.clip(lower=0)) + np.count_nonzero(short_pl.clip(lower=0))
         lose_trades = np.count_nonzero(long_pl.clip(upper=0)) + np.count_nonzero(short_pl.clip(upper=0))
@@ -331,8 +332,8 @@ class Backtest(object):
         s.loc['riskreward ratio'] = round(-(gross_profit / win_trades) / (gross_loss / lose_trades), 2)
         s.loc['sharpe ratio'] = round(self.return_rate.mean() / self.return_rate.std(), 2)
         s.loc['average return'] = round(self.return_rate.mean(), 2)
-        s.loc['loss cut rate'] = round(loss_cut / trades * 100, 2)
-        s.loc['profit taking rate'] = round(profit_taking / trades * 100, 2)
+        s.loc['stop loss'] = stop_loss
+        s.loc['take profit'] = take_profit
         return s
 
     def plot(self, filepath=None):
@@ -341,28 +342,9 @@ class Backtest(object):
         plt.legend()
         plt.subplot(2, 1, 2)
         plt.hist(self.return_rate, 50, rwidth=0.9)
-        plt.axvline(x=0, linestyle="dashed", label="return = 0")
         plt.axvline(sum(self.return_rate)/len(self.return_rate), color="orange", label="average return")
         plt.legend()
         if filepath is None:
             plt.show()
         else:
             plt.savefig(filepath)
-    
-    def _position_line(self, trade):
-        pos_period = 0
-        position = False
-        line = trade.copy()
-        for i in range(len(line)):
-            if trade[i] > 0: position = True
-            elif position: pos_period += 1
-            if trade[i] < 0:
-                if pos_period > 0:
-                    line[i] = -trade[i]
-                    diff = (line[i]-line[i-pos_period])/pos_period
-                    for j in range(i-1, i-pos_period, -1):
-                        line[j] = line[j+1]-diff
-                    pos_period = 0
-                    position = False
-            if trade[i] == 0 and not position: line[i] = 'NaN'
-        return line

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name  = 'oanda-backtest',
-    version = '0.1.6',
+    version = '0.1.7',
     description = 'oanda-backtest is a python library for backtest with oanda rest api on Python 3.6 and above.',
     long_description = open('README.md').read(),
     long_description_content_type="text/markdown",

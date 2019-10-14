@@ -21,7 +21,7 @@ class TestBacktest(object):
     def test_run_advanced(self):
 
         filepath='usd-jpy-h1.csv'
-        if os.path.exists(filepath):
+        if self.bt.exists(filepath):
             self.bt.read_csv(filepath)
         else:
             self.bt.get("USD_JPY", {"granularity": "H1", "count": 5000})
@@ -39,9 +39,9 @@ class TestBacktest(object):
         self.bt.point = 0.01
         self.bt.spread = 0.08
         self.bt.limit = 20
-        self.bt.loss_cut = 50
+        self.bt.stop_loss = 50
         self.bt.lots = 10000
-        self.bt.profit_taking = 100
+        self.bt.take_profit = 100
 
         actual = self.bt.run()
         self.bt.plot("backtest.png")

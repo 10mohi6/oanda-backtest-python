@@ -34,18 +34,17 @@ bt.plot()
 # advanced
 #
 from oanda_backtest import Backtest
-import os
 
 bt = Backtest(token='XXXXXXXXXX')
 filepath='usd-jpy-h1.csv'
-if os.path.exists(filepath):
-    df = bt.read_csv(filepath)
+if bt.exists(filepath):
+    bt.read_csv(filepath)
 else:
     params = {
         "granularity": "H1",  # 1 hour candlesticks
         "count": 5000 # 5000 candlesticks (default=500, maximum=5000)
     }
-    df = bt.get("USD_JPY", params)
+    bt.get("USD_JPY", params)
     bt.to_csv(filepath)
 
 fast_ma = bt.sma(period=10)
@@ -59,8 +58,8 @@ bt.sell_exit = ((bt.C > exit_ma) & (bt.C.shift() <= exit_ma.shift())).values
 bt.initial_deposit = 100000 # default=0
 bt.point = 0.01 # 1pips (default=0.0001)
 bt.lots = 1000 # currency unit (default=10000)
-bt.loss_cut = 50 # loss cut pips (default=0)
-bt.profit_taking = 100 # profit taking pips (default=0)
+bt.stop_loss = 50 # stop loss pips (default=0)
+bt.take_profit = 100 # take profit pips (default=0)
 
 print(bt.run())
 bt.plot("backtest.png")
@@ -68,17 +67,17 @@ bt.plot("backtest.png")
 ```
 
 ```python
-total profit            72.00
-total trades           188.00
-win rate                29.79
-profit factor            1.01
-maximum drawdown      2781.00
-recovery factor          0.03
-riskreward ratio         2.36
-sharpe ratio             0.00
-average return           0.17
-loss cut rate            0.53
-profit taking rate       0.53
+total profit          72.00
+total trades         188.00
+win rate              29.79
+profit factor          1.01
+maximum drawdown    2781.00
+recovery factor        0.03
+riskreward ratio       2.36
+sharpe ratio           0.00
+average return         0.17
+stop loss              1.00
+take profit            1.00
 ```
 ![advanced.png](https://raw.githubusercontent.com/10mohi6/oanda-backtest-python/master/tests/advanced.png)
 

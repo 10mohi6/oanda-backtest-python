@@ -1,9 +1,10 @@
 .DS_Store
 __pycache__/
-env/
+.venv/
 *.egg-info/
 dist/
 .coverage
 .pytest_cache/
 build/
 .vscode/
+.mypy_cache/

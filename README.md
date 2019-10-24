@@ -21,12 +21,12 @@ oanda-backtest is a python library for backtest with oanda rest api on Python 3.
 #
 from oanda_backtest import Backtest
 
-bt = Backtest(token='XXXXXXXXXX')
-bt.get("EUR_USD")
+bt = Backtest(access_token='<your access token>', environment='practice')
+bt.candles("EUR_USD")
 fast_ma = bt.sma(period=5)
 slow_ma = bt.sma(period=25)
-bt.sell_exit = bt.buy_entry = ((fast_ma > slow_ma) & (fast_ma.shift() <= slow_ma.shift())).values
-bt.buy_exit = bt.sell_entry = ((fast_ma < slow_ma) & (fast_ma.shift() >= slow_ma.shift())).values
+bt.sell_exit = bt.buy_entry = (fast_ma > slow_ma) & (fast_ma.shift() <= slow_ma.shift())
+bt.buy_exit = bt.sell_entry = (fast_ma < slow_ma) & (fast_ma.shift() >= slow_ma.shift())
 bt.run()
 bt.plot()
 
@@ -35,29 +35,28 @@ bt.plot()
 #
 from oanda_backtest import Backtest
 
-bt = Backtest(token='XXXXXXXXXX')
+bt = Backtest(access_token='<your access token>', environment='practice')
 filepath='usd-jpy-h1.csv'
 if bt.exists(filepath):
     bt.read_csv(filepath)
 else:
     params = {
-        "granularity": "H1",  # 1 hour candlesticks
+        "granularity": "H1",  # 1 hour candlesticks (default=S5)
         "count": 5000 # 5000 candlesticks (default=500, maximum=5000)
     }
-    bt.get("USD_JPY", params)
+    bt.candles("USD_JPY", params)
     bt.to_csv(filepath)
 
 fast_ma = bt.sma(period=10)
 slow_ma = bt.sma(period=30)
 exit_ma = bt.sma(period=5)
-bt.buy_entry = ((fast_ma > slow_ma) & (fast_ma.shift() <= slow_ma.shift())).values
-bt.sell_entry = ((fast_ma < slow_ma) & (fast_ma.shift() >= slow_ma.shift())).values
-bt.buy_exit = ((bt.C < exit_ma) & (bt.C.shift() >= exit_ma.shift())).values
-bt.sell_exit = ((bt.C > exit_ma) & (bt.C.shift() <= exit_ma.shift())).values
+bt.buy_entry = (fast_ma > slow_ma) & (fast_ma.shift() <= slow_ma.shift())
+bt.sell_entry = (fast_ma < slow_ma) & (fast_ma.shift() >= slow_ma.shift())
+bt.buy_exit = (bt.C < exit_ma) & (bt.C.shift() >= exit_ma.shift())
+bt.sell_exit = (bt.C > exit_ma) & (bt.C.shift() <= exit_ma.shift())
 
 bt.initial_deposit = 100000 # default=0
-bt.point = 0.01 # 1pips (default=0.0001)
-bt.lots = 1000 # currency unit (default=10000)
+bt.units = 1000 # currency unit (default=10000)
 bt.stop_loss = 50 # stop loss pips (default=0)
 bt.take_profit = 100 # take profit pips (default=0)
 
@@ -67,17 +66,17 @@ bt.plot("backtest.png")
 ```
 
 ```python
-total profit          72.00
-total trades         188.00
-win rate              29.79
-profit factor          1.01
-maximum drawdown    2781.00
-recovery factor        0.03
-riskreward ratio       2.36
-sharpe ratio           0.00
-average return         0.17
-stop loss              1.00
-take profit            1.00
+total profit        -344.000
+total trades         193.000
+win rate              29.534
+profit factor          0.966
+maximum drawdown    2781.000
+recovery factor       -0.124
+riskreward ratio       2.289
+sharpe ratio          -0.011
+average return        -1.748
+stop loss              1.000
+take profit            1.000
 ```
 ![advanced.png](https://raw.githubusercontent.com/10mohi6/oanda-backtest-python/master/tests/advanced.png)
 

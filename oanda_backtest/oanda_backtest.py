@@ -428,3 +428,35 @@ class Backtest(object):
             plt.show()
         else:
             plt.savefig(filepath)
+
+
+if __name__ == "__main__":
+    bt = Backtest(
+        access_token=os.environ["oanda_backtest_token"], environment="practice"
+    )
+    filepath = "usd-jpy-h1.csv"
+    if bt.exists(filepath):
+        bt.read_csv(filepath)
+    else:
+        params = {
+            "granularity": "H1",  # 1 hour candlesticks (default=S5)
+            "count": 5000,  # 5000 candlesticks (default=500, maximum=5000)
+        }
+        bt.candles("USD_JPY", params)
+        bt.to_csv(filepath)
+
+    fast_ma = bt.sma(period=10)
+    slow_ma = bt.sma(period=30)
+    exit_ma = bt.sma(period=5)
+    bt.buy_entry = (fast_ma > slow_ma) & (fast_ma.shift() <= slow_ma.shift())
+    bt.sell_entry = (fast_ma < slow_ma) & (fast_ma.shift() >= slow_ma.shift())
+    bt.buy_exit = (bt.C < exit_ma) & (bt.C.shift() >= exit_ma.shift())
+    bt.sell_exit = (bt.C > exit_ma) & (bt.C.shift() <= exit_ma.shift())
+
+    bt.initial_deposit = 100000  # default=0
+    bt.units = 1000  # currency unit (default=10000)
+    bt.stop_loss = 50  # stop loss pips (default=0)
+    bt.take_profit = 100  # take profit pips (default=0)
+
+    print(bt.run())
+    bt.plot("backtest.png")

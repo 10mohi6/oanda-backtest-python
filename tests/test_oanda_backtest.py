@@ -1,54 +1,61 @@
 import os
 from oanda_backtest import Backtest
+import pytest
+
+import time
 
 
-class TestBacktest(object):
-    def setup_method(self, method):
-        access_token = os.environ["oanda_backtest_token"]
-        self.bt = Backtest(access_token=access_token, environment="practice")
+@pytest.fixture(scope="module", autouse=True)
+def scope_module():
+    yield Backtest(
+        access_token=os.environ["oanda_backtest_token"], environment="practice"
+    )
 
-    def test_run_basic(self):
 
-        self.bt.candles("EUR_USD")
-        fast_ma = self.bt.sma(period=5)
-        slow_ma = self.bt.sma(period=25)
-        self.bt.sell_exit = self.bt.buy_entry = (fast_ma > slow_ma) & (
-            fast_ma.shift() <= slow_ma.shift()
-        )
-        self.bt.buy_exit = self.bt.sell_entry = (fast_ma < slow_ma) & (
-            fast_ma.shift() >= slow_ma.shift()
-        )
+@pytest.fixture(scope="function", autouse=True)
+def bt(scope_module):
+    time.sleep(0.5)
+    yield scope_module
 
-        actual = self.bt.run()
-        expected = 11
-        assert expected == len(actual)
 
-    def test_run_advanced(self):
+def test_run_basic(bt):
+    bt.candles("EUR_USD")
+    fast_ma = bt.sma(period=5)
+    slow_ma = bt.sma(period=25)
+    bt.sell_exit = bt.buy_entry = (fast_ma > slow_ma) & (
+        fast_ma.shift() <= slow_ma.shift()
+    )
+    bt.buy_exit = bt.sell_entry = (fast_ma < slow_ma) & (
+        fast_ma.shift() >= slow_ma.shift()
+    )
 
-        filepath = "usd-jpy-h1.csv"
-        if self.bt.exists(filepath):
-            self.bt.read_csv(filepath)
-        else:
-            self.bt.candles("USD_JPY", {"granularity": "H1", "count": "5000"})
-            self.bt.to_csv(filepath)
+    actual = bt.run()
+    expected = 11
+    assert expected == len(actual)
 
-        fast_ma = self.bt.sma(period=10)
-        slow_ma = self.bt.sma(period=30)
-        exit_ma = self.bt.sma(period=5)
-        self.bt.buy_entry = (fast_ma > slow_ma) & (fast_ma.shift() <= slow_ma.shift())
-        self.bt.sell_entry = (fast_ma < slow_ma) & (fast_ma.shift() >= slow_ma.shift())
-        self.bt.buy_exit = (self.bt.C < exit_ma) & (
-            self.bt.C.shift() >= exit_ma.shift()
-        )
-        self.bt.sell_exit = (self.bt.C > exit_ma) & (
-            self.bt.C.shift() <= exit_ma.shift()
-        )
 
-        self.bt.initial_deposit = 100000
-        self.bt.stop_loss = 50
-        self.bt.units = 10000
-        self.bt.take_profit = 100
+def test_run_advanced(bt):
 
-        actual = self.bt.run()
-        expected = 11
-        assert expected == len(actual)
+    filepath = "usd-jpy-h1.csv"
+    if bt.exists(filepath):
+        bt.read_csv(filepath)
+    else:
+        bt.candles("USD_JPY", {"granularity": "H1", "count": "5000"})
+        bt.to_csv(filepath)
+
+    fast_ma = bt.sma(period=10)
+    slow_ma = bt.sma(period=30)
+    exit_ma = bt.sma(period=5)
+    bt.buy_entry = (fast_ma > slow_ma) & (fast_ma.shift() <= slow_ma.shift())
+    bt.sell_entry = (fast_ma < slow_ma) & (fast_ma.shift() >= slow_ma.shift())
+    bt.buy_exit = (bt.C < exit_ma) & (bt.C.shift() >= exit_ma.shift())
+    bt.sell_exit = (bt.C > exit_ma) & (bt.C.shift() <= exit_ma.shift())
+
+    bt.initial_deposit = 100000
+    bt.stop_loss = 50
+    bt.units = 10000
+    bt.take_profit = 100
+
+    actual = bt.run()
+    expected = 11
+    assert expected == len(actual)

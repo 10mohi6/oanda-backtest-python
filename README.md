@@ -5,8 +5,9 @@
 [![codecov](https://codecov.io/gh/10mohi6/oanda-backtest-python/branch/master/graph/badge.svg)](https://codecov.io/gh/10mohi6/oanda-backtest-python)
 [![Build Status](https://travis-ci.com/10mohi6/oanda-backtest-python.svg?branch=master)](https://travis-ci.com/10mohi6/oanda-backtest-python)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/oanda-backtest)](https://pypi.org/project/oanda-backtest/)
+[![Downloads](https://pepy.tech/badge/oanda-backtest)](https://pepy.tech/project/oanda-backtest)
 
-oanda-backtest is a python library for backtest with oanda rest api on Python 3.6 and above.
+oanda-backtest is a python library for backtest with oanda fx trade rest api on Python 3.6 and above.
 
 
 ## Installation
@@ -15,10 +16,8 @@ oanda-backtest is a python library for backtest with oanda rest api on Python 3.
 
 ## Usage
 
+### basic
 ```python
-#
-# basic
-#
 from oanda_backtest import Backtest
 
 bt = Backtest(access_token='<your access token>', environment='practice')
@@ -29,10 +28,10 @@ bt.sell_exit = bt.buy_entry = (fast_ma > slow_ma) & (fast_ma.shift() <= slow_ma.
 bt.buy_exit = bt.sell_entry = (fast_ma < slow_ma) & (fast_ma.shift() >= slow_ma.shift())
 bt.run()
 bt.plot()
+```
 
-#
-# advanced
-#
+### advanced
+```python
 from oanda_backtest import Backtest
 
 bt = Backtest(access_token='<your access token>', environment='practice')
@@ -66,17 +65,17 @@ bt.plot("backtest.png")
 ```
 
 ```python
-total profit        -344.000
-total trades         193.000
-win rate              29.534
-profit factor          0.966
-maximum drawdown    2781.000
-recovery factor       -0.124
-riskreward ratio       2.289
-sharpe ratio          -0.011
-average return        -1.748
-stop loss              1.000
-take profit            1.000
+total profit        1989.000
+total trades         171.000
+win rate              35.088
+profit factor          1.198
+maximum drawdown    2745.000
+recovery factor        0.725
+riskreward ratio       2.236
+sharpe ratio           0.050
+average return        10.666
+stop loss              5.000
+take profit            5.000
 ```
 ![advanced.png](https://raw.githubusercontent.com/10mohi6/oanda-backtest-python/master/tests/advanced.png)
 

@@ -394,7 +394,7 @@ class Backtest(object):
         mdd = (self.equity.cummax() - self.equity).max()
         self.return_rate = pd.Series(short_rr + long_rr)
 
-        s = pd.Series()
+        s = pd.Series(dtype="object")
         s.loc["total profit"] = round(profit_pl, 3)
         s.loc["total trades"] = trades
         s.loc["win rate"] = round(win_trades / trades * 100, 3)

@@ -80,6 +80,16 @@ take profit            5.000
 ![advanced.png](https://raw.githubusercontent.com/10mohi6/oanda-backtest-python/master/tests/advanced.png)
 
 
+## Supported indicators
+- Simple Moving Average 'sma'
+- Exponential Moving Average 'ema'
+- Moving Average Convergence Divergence 'macd'
+- Relative Strenght Index 'rsi'
+- Bollinger Bands 'bband'
+- Stochastic Oscillator 'stoch'
+- Market Momentum 'mom'
+
+
 ## Getting started
 
 For help getting started with OANDA REST API, view our online [documentation](https://developer.oanda.com/rest-live-v20/introduction/).

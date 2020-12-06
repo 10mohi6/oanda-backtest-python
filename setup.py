@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="oanda-backtest",
-    version="0.2.1",
+    version="0.2.2",
     description="oanda-backtest is a python library \
         for backtest with oanda fx rest api on Python 3.6 and above.",
     long_description=open("README.md").read(),
